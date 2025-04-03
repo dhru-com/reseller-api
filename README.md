@@ -99,14 +99,105 @@ This script retrieves account details using the `/account` API endpoint.
 
 This script fetches the list of available products and their details using the `/products` API endpoint.
 
-- **Expected Response**:
-    - Includes currency, category details, and a list of products with:
-        - `name`
-        - `type`
-        - `price`
-        - Any required transaction `fields`.
+- **Expected Response**:  
+  The endpoint returns a JSON response in the following format:
+  ```json
+  {
+    "status": "success",
+    "code": 200,
+    "data": {
+      "currency": "USD",
+      "categories": {
+        "C1": { "name": "Gaming Cards" },
+        "C2": { "name": "Gift Cards" },
+        "C3": { "name": "Subscription Services" }
+      },
+      "products": {
+        "aa12f456-7890-4abc-82fa-127890abcd12": {
+          "name": "PlayStation Store Gift Card - $50",
+          "type": "digital",
+          "cids": ["C1", "C2"],
+          "price": 45.00,
+          "fields": [
+            {
+              "type": "text",
+              "name": "Recipient Name",
+              "min": 3,
+              "max": 50,
+              "required": true
+            },
+            {
+              "type": "text",
+              "name": "Email Address",
+              "min": 5,
+              "max": 50,
+              "required": true
+            }
+          ]
+        },
+        "bb45g678-9012-4def-82cb-456789abcd34": {
+          "name": "Xbox Live Gold - 12 Month Membership",
+          "type": "digital",
+          "cids": ["C1", "C3"],
+          "price": 59.99,
+          "fields": [
+            {
+              "type": "text",
+              "name": "Xbox Gamertag",
+              "min": 3,
+              "max": 50,
+              "required": true
+            }
+          ]
+        },
+        "cc78h910-1234-4ghi-82dc-789012abcd56": {
+          "name": "Amazon Gift Card - $100",
+          "type": "digital",
+          "cids": ["C2"],
+          "price": 95.00,
+          "fields": [
+            {
+              "type": "text",
+              "name": "Recipient Name",
+              "min": 3,
+              "max": 50,
+              "required": true
+            },
+            {
+              "type": "text",
+              "name": "Message",
+              "min": 0,
+              "max": 200,
+              "required": false
+            }
+          ]
+        }
+      }
+    }
+  }
+  ```
 
-- **Run the script**:
+- **Key Fields**:
+    - `status` (string): Indicates whether the request was successful (e.g., `"success"`).
+    - `code` (integer): The response code (e.g., `200` for success).
+    - `currency` (string): The currency in which product prices are listed (e.g., `"USD"`).
+    - `categories` (object): Describes available product categories, where:
+        - Each key represents a category ID (e.g., `"C1"`, `"C2"`), and its value includes:
+            - `name` (string): The name of the category (e.g., `"Gaming Cards"`).
+    - `products` (object): Contains detailed information about available products, where:
+        - **Key**: Unique product ID (UUID).
+        - **Value**: Contains product details, such as:
+            - `name` (string): Product name.
+            - `type` (string): Type of product (e.g., `"digital"`).
+            - `cids` (array): The category IDs applicable to the product.
+            - `price` (float): The product's price in the specified currency.
+            - `fields` (array): Input fields required to place an order for the product:
+                - `type` (string): Input type (e.g., `"text"`).
+                - `name` (string): Field label (e.g., `"Recipient Name"`).
+                - `required` (boolean): Specifies if the field is mandatory.
+                - `min`, `max` (integer, optional): Minimum/maximum length of input.
+
+- **Run the Script**:
   ```bash
   php products/get-products.php
   ```
@@ -116,9 +207,6 @@ This script fetches the list of available products and their details using the `
 **File**: `orders/place-new-order.php`
 
 This script places a new order via the `/order` API endpoint.
-
-- **How it works**:
-    - Accepts `product_uuid`, order-specific details (`fields`), and optional fields like `feedback_url` and `IMEI`.
 
 - **Expected Response**:
   ```json
@@ -146,7 +234,7 @@ This script places a new order via the `/order` API endpoint.
 
 **File**: `orders/get-order-details.php`
 
-This script retrieves details for a specific order using the `/order` endpoint.
+This script retrieves details for a specific order using the `/order` API endpoint.
 
 - **Edit `orderUuid`**:
   Replace `E121110144452240` with the actual Order UUID in the script:
@@ -163,8 +251,7 @@ This script retrieves details for a specific order using the `/order` endpoint.
     "data": {
       "quantity": 1,
       "status": "success",
-      "date": "2025-04-03 11:11:12",
-      "date_completed": "2025-04-03 11:25:35"
+      "date": "2025-04-03 11:42:00"
     }
   }
   ```
@@ -178,67 +265,16 @@ This script retrieves details for a specific order using the `/order` endpoint.
 
 ## Postman Documentation
 
-For a detailed explanation of all the API endpoints, request payloads, and sample responses, refer to the Postman documentation:
-
-[API Documentation on Postman](https://documenter.getpostman.com/view/23443351/2sB2cShPhS)
-
-You can also import this documentation into Postman for testing the endpoints interactively.
-
----
-
-## Configuration
-
-The `config.php` file contains essential API configurations:
-
-```php
-return [
-    'API_URL' => 'https://api.example.com',  // Replace with your API base URL
-    'PROTOCOL' => 'https',                  // Protocol: http or https
-    'BEARER_TOKEN' => 'your-bearer-token',  // Replace with your Bearer token
-];
-```
-
-### Customize Configurations
-
-Modify this file to connect to the desired API endpoint.
-
----
-
-## API Helper Functions
-
-All API-related calls are processed using the `callApi` function in the `helpers.php` file.
-
-### Function: `callApi`
-Usage:
-```php
-$response = callApi($url, $method, $headers, $body);
-```
-Parameters:
-- `$url`: Complete API endpoint URL.
-- `$method`: HTTP method (GET, POST, PUT, DELETE).
-- `$headers`: Additional headers as an array (optional).
-- `$body`: Request body (optional, for POST/PUT requests).
-
-Example:
-```php
-$headers = ['X-Custom-Header: HeaderValue'];
-$body = ['key' => 'value'];
-
-$response = callApi('https://api.example.com/v1/endpoint', 'POST', $headers, $body);
-```
-
-### Function: `loadConfig`
-- Loads the configurations from `config.php`.
+Refer to the Postman documentation for further details on the API.
 
 ---
 
 ## Notes
 
-- This project assumes the API returns JSON responses. Modify the processing logic if the API responds differently.
-- Error handling is minimal; adapt it to handle more edge cases in production usage.
+- Ensure you have a valid Bearer Token configured in `config.php`.
 
 ---
 
 ## License
 
-This project is licensed under the MIT License. You are free to modify and distribute the code.
+This project is licensed under the MIT License.
