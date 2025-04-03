@@ -36,6 +36,7 @@ This project demonstrates the integration of a Reseller Public API using PHP. It
     - `place-new-order.php` — Place a new order.
     - `get-order-details.php` — Retrieve details of an order.
 
+---
 
 ## Setup Instructions
 
@@ -134,68 +135,20 @@ This script fetches the list of available products and their details using the `
               "required": true
             }
           ]
-        },
-        "bb45g678-9012-4def-82cb-456789abcd34": {
-          "name": "Xbox Live Gold - 12 Month Membership",
-          "type": "digital",
-          "cids": ["C1", "C3"],
-          "price": 59.99,
-          "fields": [
-            {
-              "type": "text",
-              "name": "Xbox Gamertag",
-              "min": 3,
-              "max": 50,
-              "required": true
-            }
-          ]
-        },
-        "cc78h910-1234-4ghi-82dc-789012abcd56": {
-          "name": "Amazon Gift Card - $100",
-          "type": "digital",
-          "cids": ["C2"],
-          "price": 95.00,
-          "fields": [
-            {
-              "type": "text",
-              "name": "Recipient Name",
-              "min": 3,
-              "max": 50,
-              "required": true
-            },
-            {
-              "type": "text",
-              "name": "Message",
-              "min": 0,
-              "max": 200,
-              "required": false
-            }
-          ]
         }
+        // Additional products...
       }
     }
   }
   ```
 
 - **Key Fields**:
-    - `status` (string): Indicates whether the request was successful (e.g., `"success"`).
-    - `code` (integer): The response code (e.g., `200` for success).
-    - `currency` (string): The currency in which product prices are listed (e.g., `"USD"`).
-    - `categories` (object): Describes available product categories, where:
-        - Each key represents a category ID (e.g., `"C1"`, `"C2"`), and its value includes:
-            - `name` (string): The name of the category (e.g., `"Gaming Cards"`).
-    - `products` (object): Contains detailed information about available products, where:
-        - **Key**: Unique product ID (UUID).
-        - **Value**: Contains product details, such as:
-            - `name` (string): Product name.
-            - `type` (string): Type of product (e.g., `"digital"`).
-            - `cids` (array): The category IDs applicable to the product.
-            - `price` (float): The product's price in the specified currency.
-            - `fields` (array): Input fields required to place an order for the product:
-                - `type` (string): Input type (e.g., `"text"`).
-                - `name` (string): Field label (e.g., `"Recipient Name"`).
-                - `required` (boolean): Specifies if the field is mandatory.
-                - `min`, `max` (integer, optional): Minimum/maximum length of input.
+    - `status`: Indicates success or failure.
+    - `categories`: Product categories with their IDs.
+    - `products`: List of available products, each containing:
+        - `name`: Name of the product.
+        - `price`: The cost of the product.
+        - `fields`: Additional inputs required for an order.
 
 - **Run the Script**:
   ```bash
@@ -208,6 +161,44 @@ This script fetches the list of available products and their details using the `
 
 This script places a new order via the `/order` API endpoint.
 
+- **Request Example**:  
+  The request payload should include the product details and additional fields, as shown below:
+  ```json
+  [
+    {
+      "product_uuid": "dd44ccc4-9139-11ef-9b79-11111111111",
+      "fields": [
+        {
+          "feedback_url": "https://example.com?action=feedback&order_id=112233",
+          "reference_id": "112233",
+          "Quantity": 1,
+          "IMEI": "11111111111119",
+          "username": "test-user"
+        },
+        {
+          "feedback_url": "https://example.com?action=feedback&order_id=112234",
+          "reference_id": "112234",
+          "Quantity": 2,
+          "IMEI": "22222222222229",
+          "username": "example-user"
+        }
+      ]
+    },
+    {
+      "product_uuid": "ee55ddd4-9139-22ab-9b79-22222222222",
+      "fields": [
+        {
+          "feedback_url": "https://example.com?action=feedback&order_id=223344",
+          "reference_id": "223344",
+          "Quantity": 1,
+          "IMEI": "33333333333339",
+          "username": "another-user"
+        }
+      ]
+    }
+  ]
+  ```
+
 - **Expected Response**:
   ```json
   {
@@ -215,17 +206,30 @@ This script places a new order via the `/order` API endpoint.
     "message": "4 Orders submitted",
     "code": 200,
     "data": [
-      {
-        "order_uuid": "D25040311111228272516",
-        "amount": 1,
-        "currency_code": "USD",
-        "reference_id": "112233"
-      }
+      [
+        {
+          "order_uuid": "D25040311111228272516",
+          "amount": 1,
+          "currency_code": "USD",
+          "reference_id": "112233"
+        },
+        {
+          "order_uuid": "Q25040311111231096887",
+          "amount": 2,
+          "currency_code": "USD",
+          "reference_id": "112234"
+        }
+      ]
     ]
   }
   ```
 
-- **Run the script**:
+- **Key Fields**:
+    - `order_uuid`: Unique order identifier.
+    - `amount`: Quantity of items processed.
+    - `reference_id`: Request identifier for tracking.
+
+- **Run the Script**:
   ```bash
   php orders/place-new-order.php
   ```
@@ -237,7 +241,7 @@ This script places a new order via the `/order` API endpoint.
 This script retrieves details for a specific order using the `/order` API endpoint.
 
 - **Edit `orderUuid`**:
-  Replace `E121110144452240` with the actual Order UUID in the script:
+  Replace `YOUR_ORDER_UUID` with the actual Order UUID in the script:
   ```php
   $orderUuid = 'YOUR_ORDER_UUID';
   ```
@@ -256,7 +260,7 @@ This script retrieves details for a specific order using the `/order` API endpoi
   }
   ```
 
-- **Run the script**:
+- **Run the Script**:
   ```bash
   php orders/get-order-details.php
   ```
