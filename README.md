@@ -2,6 +2,11 @@
 
 This project demonstrates the integration of a Reseller Public API using PHP. It contains reusable components for API configuration, utility functions for making API calls, and example scripts for various API endpoints.
 
+<a href="https://documenter.getpostman.com/view/23443351/2sB2cShPhS#7fdc0833-9937-42cc-a652-c1d0d2706cdb" style="text-decoration:none;">
+<img src="https://img.shields.io/static/v1?label=Postman&message=API%20Documentation&color=orange&logo=postman&logoColor=white" alt="Postman Documentation">
+</a>
+
+
 ---
 
 ## Table of Contents
