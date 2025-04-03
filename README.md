@@ -7,7 +7,6 @@ This project demonstrates the integration of a Reseller Public API using PHP. It
 ## Table of Contents
 
 - [Project Structure](#project-structure)
-- [Setup Instructions](#setup-instructions)
 - [Scripts](#scripts)
     - [Retrieve Account Information](#retrieve-account-information)
     - [Get Products](#get-products)
@@ -38,34 +37,6 @@ This project demonstrates the integration of a Reseller Public API using PHP. It
 
 ---
 
-## Setup Instructions
-
-1. Clone the repository:
-   ```bash
-   git clone <repository-url>
-   cd <repository-directory>
-   ```
-
-2. Update the `config.php` file with your API details:
-    - Replace the placeholders:
-        - `API_URL` with the API base URL.
-        - `BEARER_TOKEN` with your API token.
-    - Example:
-      ```php
-      return [
-          'API_URL' => 'https://api.example.com',
-          'PROTOCOL' => 'https',
-          'BEARER_TOKEN' => 'your-bearer-token',
-      ];
-      ```
-
-3. Install necessary PHP extensions if not already installed:
-    - Ensure `curl` is enabled in your PHP configuration (`php.ini`).
-
-4. Run the scripts in the appropriate directories after configuring.
-
----
-
 ## Scripts
 
 ### Retrieve Account Information
@@ -87,11 +58,6 @@ This script retrieves account details using the `/account` API endpoint.
       "email": "johndoe@example.com"
     }
   }
-  ```
-
-- **Run the script**:
-  ```bash
-  php account/get-account-info.php
   ```
 
 ### Get Products
@@ -142,27 +108,14 @@ This script fetches the list of available products and their details using the `
   }
   ```
 
-- **Key Fields**:
-    - `status`: Indicates success or failure.
-    - `categories`: Product categories with their IDs.
-    - `products`: List of available products, each containing:
-        - `name`: Name of the product.
-        - `price`: The cost of the product.
-        - `fields`: Additional inputs required for an order.
-
-- **Run the Script**:
-  ```bash
-  php products/get-products.php
-  ```
-
 ### Place New Order
 
 **File**: `orders/place-new-order.php`
 
 This script places a new order via the `/order` API endpoint.
 
-- **Request Example**:  
-  The request payload should include the product details and additional fields, as shown below:
+- **Request Details**:  
+  To place a new order, a POST request is sent to the `/order` endpoint with the following payload:
   ```json
   [
     {
@@ -199,52 +152,70 @@ This script places a new order via the `/order` API endpoint.
   ]
   ```
 
+    - **Key Fields in the Request**:
+        - `product_uuid` (string) - The unique identifier of the product or service to order (mandatory).
+        - `fields` (array) - An array containing details for each order request:
+            - `feedback_url` (string) - Optional. A URL to receive order status updates via POST requests when the status changes.
+            - `reference_id` (string) - A unique identifier for the order request (mandatory for tracking).
+            - `Quantity` (integer) - Quantity of the product being ordered (mandatory).
+            - Additional fields depend on the product (e.g., `"IMEI"`, `"username"`, etc.).
+
 - **Expected Response**:
+  When the request is successfully processed, the API returns a response similar to the following:
   ```json
   {
     "status": "success",
     "message": "4 Orders submitted",
     "code": 200,
     "data": [
-      [
-        {
-          "order_uuid": "D25040311111228272516",
-          "amount": 1,
-          "currency_code": "USD",
-          "reference_id": "112233"
-        },
-        {
-          "order_uuid": "Q25040311111231096887",
-          "amount": 2,
-          "currency_code": "USD",
-          "reference_id": "112234"
-        }
-      ]
+      {
+        "order_uuid": "D25040311111228272516",
+        "amount": 1,
+        "currency_code": "USD",
+        "reference_id": "112233"
+      },
+      {
+        "order_uuid": "Q25040311111231096887",
+        "amount": 2,
+        "currency_code": "USD",
+        "reference_id": "112234"
+      }
     ]
   }
   ```
 
-- **Key Fields**:
-    - `order_uuid`: Unique order identifier.
-    - `amount`: Quantity of items processed.
-    - `reference_id`: Request identifier for tracking.
+    - **Key Fields in the Response**:
+        - `status`: The status of the API call (`success` or `error`).
+        - `message`: A summary of the operation performed.
+        - `data`: An array of processed orders. Each object contains:
+            - `order_uuid`: A unique identifier for the created order.
+            - `amount`: The quantity of items processed for the order.
+            - `currency_code`: The transaction's currency (e.g., `USD`).
+            - `reference_id`: The reference ID provided in the request.
 
-- **Run the Script**:
-  ```bash
-  php orders/place-new-order.php
+- **Feedback URL (`feedback_url`)**:  
+  When the order's status changes (e.g., to `success` or `rejected`), a POST request is sent to the `feedback_url`.  
+  Example of the POST data:
+  ```json
+  {
+    "reference_id": "112233",
+    "order_id": "K25040303033085966213",
+    "status": "success",
+    "replay": "YWRmc2RmYXM="
+  }
   ```
+
+    - **Key Fields in the Feedback**:
+        - `reference_id`: The reference ID for the order, provided during order submission.
+        - `order_id`: The unique identifier for the order.
+        - `status`: The current status of the order (e.g., `success`, `rejected`).
+        - `replay`: A base64-encoded message or data related to the order.
 
 ### Get Order Details
 
 **File**: `orders/get-order-details.php`
 
 This script retrieves details for a specific order using the `/order` API endpoint.
-
-- **Edit `orderUuid`**:
-  Replace `YOUR_ORDER_UUID` with the actual Order UUID in the script:
-  ```php
-  $orderUuid = 'YOUR_ORDER_UUID';
-  ```
 
 - **Expected Response**:
   ```json
@@ -258,11 +229,6 @@ This script retrieves details for a specific order using the `/order` API endpoi
       "date": "2025-04-03 11:42:00"
     }
   }
-  ```
-
-- **Run the Script**:
-  ```bash
-  php orders/get-order-details.php
   ```
 
 ---
