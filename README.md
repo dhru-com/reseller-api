@@ -92,19 +92,10 @@ This script fetches the list of available products and their details using the `
           "price": 45.00,
           "fields": [
             {
-              "type": "text",
-              "name": "Recipient Name",
-              "min": 3,
-              "max": 50,
-              "required": true
-            },
-            {
-              "type": "text",
-              "name": "Email Address",
-              "min": 5,
-              "max": 50,
-              "required": true
+              "Email": "email@domain.com",
+              "Username": "UsernameOne",
             }
+            // Additional fields for same products...  
           ]
         }
         // Additional products...
