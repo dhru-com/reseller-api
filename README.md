@@ -92,10 +92,11 @@ This script fetches the list of available products and their details using the `
           "price": 45.00,
           "fields": [
             {
-              "Email": "email@domain.com",
-              "Username": "UsernameOne",
+              "Quantity": 1,
+              "IMEI": "11111111111119",
+              "username": "test-user"
             }
-            // Additional fields for same products...  
+            // Additional fields for same product...  
           ]
         }
         // Additional products...
