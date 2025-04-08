@@ -91,12 +91,22 @@ This script fetches the list of available products and their details using the `
           "cids": ["C1", "C2"],
           "price": 45.00,
           "fields": [
-            {
-              "Quantity": 1,
-              "IMEI": "11111111111119",
-              "username": "test-user"
-            }
-            // Additional fields for same product...  
+             {
+               "type": "text",
+               "name": "Recipient Name",
+               "min": 3,
+               "max": 50,
+               "required": true
+             },
+             {
+               "type": "text",
+               "name": "Email Address",
+               "min": 5,
+               "max": 50,
+               "required": true
+               "Email": "email@domain.com",
+               "Username": "UsernameOne",
+             }
           ]
         }
         // Additional products...
@@ -125,7 +135,7 @@ This script places a new order via the `/order` API endpoint.
           "IMEI": "11111111111119",
           "username": "test-user"
         },
-        {
+        { // Additional order for same product...
           "feedback_url": "https://example.com?action=feedback&order_id=112234",
           "reference_id": "112234",
           "Quantity": 2,
@@ -138,6 +148,7 @@ This script places a new order via the `/order` API endpoint.
       "product_uuid": "ee55ddd4-9139-22ab-9b79-22222222222",
       "fields": [
         {
+          // Additional order for new product...
           "feedback_url": "https://example.com?action=feedback&order_id=223344",
           "reference_id": "223344",
           "Quantity": 1,
